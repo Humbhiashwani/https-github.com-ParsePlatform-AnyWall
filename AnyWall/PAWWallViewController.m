@@ -141,6 +141,16 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
+- (void)dealloc {
+	[locationManager stopUpdatingLocation];
+	
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWFilterDistanceChangeNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWLocationChangeNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWPostCreatedNotification object:nil];
+	
+	self.mapPinsPlaced = NO; // reset this for the next time we show the map.
+}
+
 #pragma mark - NSNotificationCenter notification handlers
 
 - (void)distanceFilterDidChange:(NSNotification *)note {

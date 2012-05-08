@@ -65,6 +65,10 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
+- (void)dealloc {
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextViewTextDidChangeNotification object:textView];
+}
+
 #pragma mark UINavigationBar-based actions
 
 - (IBAction)cancelPost:(id)sender {

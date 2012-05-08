@@ -78,6 +78,12 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 	return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
+- (void)dealloc {
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWFilterDistanceChangeNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWLocationChangeNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWPostCreatedNotification object:nil];
+}
+
 #pragma mark - NSNotification callbacks
 
 - (void)distanceFilterDidChange:(NSNotification *)note {

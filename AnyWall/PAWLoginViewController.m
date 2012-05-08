@@ -72,6 +72,11 @@
 	[super viewWillAppear:animated];
 }
 
+-  (void)dealloc {
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:usernameField];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:passwordField];
+}
+
 #pragma mark - IBActions
 
 - (IBAction)cancel:(id)sender {
