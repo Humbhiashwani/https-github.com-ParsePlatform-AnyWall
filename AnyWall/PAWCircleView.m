@@ -1,6 +1,6 @@
 //
 //  PAWCircleView.m
-//  AnyWall
+//  Anywall
 //
 //  Created by Christopher Bowns on 2/8/12.
 //  Based upon ReminderCircleView from Apple's WWDC 2010 sample code

@@ -1,6 +1,6 @@
 //
 //  PAWAppDelegate.m
-//  AnyWall
+//  Anywall
 //
 //  Created by Christopher Bowns on 1/30/12.
 //  Copyright (c) 2012 Parse. All rights reserved.
@@ -59,7 +59,7 @@ void uncaughtExceptionHandler(NSException *exception);
 {
 	// Go to the welcome screen and have them log in or create an account.
 	PAWWelcomeViewController *welcomeViewController = [[PAWWelcomeViewController alloc] initWithNibName:@"PAWWelcomeViewController" bundle:nil];
-	welcomeViewController.title = @"Welcome to AnyWall";
+	welcomeViewController.title = @"Welcome to Anywall";
 	
 	UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:welcomeViewController];
 	navController.navigationBarHidden = YES;
@@ -76,18 +76,19 @@ void uncaughtExceptionHandler(NSException *exception);
 
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-	
+
 	// ****************************************************************************
 	// Fill in with your Parse credentials:
 	// ****************************************************************************
 
-	// [Parse setApplicationId:@"your_application_id" clientKey:@"your_client_key"];
+	[Parse setApplicationId:@"your-application-id-here" clientKey:@"your-client-key-here"];
 
 	// Grab values from NSUserDefaults:
 	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
 
 	// Set the global tint on the navigation bar
-	[[UINavigationBar appearance] setTintColor:[UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0]];
+	[[UINavigationBar appearance] setTintColor:[UIColor colorWithRed:200.0/255.0 green:83.0/255.0 blue:70.0/255.0 alpha:1.0]];
+	[[UINavigationBar appearance] setBackgroundImage:[UIImage imageNamed:@"bar.png"] forBarMetrics:UIBarMetricsDefault];
 
 	// Desired search radius:
 	if ([userDefaults doubleForKey:defaultsFilterDistanceKey]) {
@@ -113,6 +114,8 @@ void uncaughtExceptionHandler(NSException *exception);
 		// Go to the welcome screen and have them log in or create an account.
 		[self presentWelcomeViewController];
 	}
+	
+	[PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
 
     [self.window makeKeyAndVisible];
     return YES;

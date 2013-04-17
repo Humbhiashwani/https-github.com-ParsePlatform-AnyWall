@@ -1,6 +1,6 @@
 //
 //  PAWActivityView.m
-//  AnyWall
+//  Anywall
 //
 //  Created by Christopher Bowns on 2/6/12.
 //  Copyright (c) 2012 Parse. All rights reserved.
