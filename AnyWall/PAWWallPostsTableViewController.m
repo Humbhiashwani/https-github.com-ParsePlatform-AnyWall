@@ -1,17 +1,31 @@
 //
 //  PAWWallPostsTableViewController.m
-//  AnyWall
+//  Anywall
 //
 //  Created by Christopher Bowns on 2/6/12.
 //  Copyright (c) 2012 Parse. All rights reserved.
 //
 
 static CGFloat const kPAWWallPostTableViewFontSize = 12.f;
-static CGFloat const kPAWWallPostTableViewCellWidth = 310.f; // subject to change.
+static CGFloat const kPAWWallPostTableViewCellWidth = 230.f; // subject to change.
 
-// Multiline cells:
-static CGFloat const kPAWWallPostTableViewCellPadding = 14.f;
-static CGFloat const kPAWWallPostTableViewCellUsernameHeight = 15.f;
+// Cell dimension and positioning constants
+static CGFloat const kPAWCellPaddingTop = 5.f;
+static CGFloat const kPAWCellPaddingBottom = 1.f;
+static CGFloat const kPAWCellPaddingSides = 0.f;
+static CGFloat const kPAWCellTextPaddingTop = 6.f;
+static CGFloat const kPAWCellTextPaddingBottom = 5.f;
+static CGFloat const kPAWCellTextPaddingSides = 5.f;
+
+static CGFloat const kPAWCellUsernameHeight = 15.f;
+static CGFloat const kPAWCellBkgdHeight = 32.f;
+static CGFloat const kPAWCellBkgdOffset = kPAWCellBkgdHeight - kPAWCellUsernameHeight;
+
+// TableViewCell ContentView tags
+static NSInteger kPAWCellBackgroundTag = 2;
+static NSInteger kPAWCellTextLabelTag = 3;
+static NSInteger kPAWCellNameLabelTag = 4;
+
 
 static NSUInteger const kPAWTableViewMainSection = 0;
 
@@ -39,7 +53,7 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 		self.className = kPAWParsePostsClassKey;
 
 		// The key of the PFObject to display in the label of the default cell style
-		self.keyToDisplay = kPAWParseTextKey;
+		self.textKey = kPAWParseTextKey;
 
 		// Whether the built-in pull-to-refresh is enabled
 		self.pullToRefreshEnabled = YES;
@@ -61,6 +75,9 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(distanceFilterDidChange:) name:kPAWFilterDistanceChangeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(locationDidChange:) name:kPAWLocationChangeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(postWasCreated:) name:kPAWPostCreatedNotification object:nil];
+	
+	self.tableView.backgroundColor = [UIColor clearColor];
+	self.tableView.separatorColor = [UIColor clearColor];
 }
 
 - (void)viewDidUnload {
@@ -141,20 +158,115 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 // Override to customize the look of a cell representing an object. The default is to display
 // a UITableViewCellStyleDefault style cell with the label being the first key in the object. 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath object:(PFObject *)object {
-	static NSString *CellIdentifier = @"Cell";
+	// Reuse identifiers for left and right cells
+	static NSString *RightCellIdentifier = @"RightCell";
+	static NSString *LeftCellIdentifier = @"LeftCell";
 
-	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-	if (cell == nil) {
-		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
+	// Try to reuse a cell
+	BOOL cellIsRight = [[[object objectForKey:kPAWParseUserKey] objectForKey:kPAWParseUsernameKey] isEqualToString:[[PFUser currentUser] username]];
+	UITableViewCell *cell;
+	if (cellIsRight) { // User's post so create blue bubble
+		cell = [tableView dequeueReusableCellWithIdentifier:RightCellIdentifier];
+		if (cell == nil) {
+			cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:RightCellIdentifier];
+			
+			UIImageView *backgroundImage = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"blueBubble.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(15, 11, 16, 11)]];
+			[backgroundImage setTag:kPAWCellBackgroundTag];
+			[cell.contentView addSubview:backgroundImage];
+
+			UILabel *textLabel = [[UILabel alloc] init];
+			[textLabel setTag:kPAWCellTextLabelTag];
+			[cell.contentView addSubview:textLabel];
+			
+			UILabel *nameLabel = [[UILabel alloc] init];
+			[nameLabel setTag:kPAWCellNameLabelTag];
+			[cell.contentView addSubview:nameLabel];
+		}
+	} else { // Someone else's post so create gray bubble
+		cell = [tableView dequeueReusableCellWithIdentifier:LeftCellIdentifier];
+		if (cell == nil) {
+			cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:LeftCellIdentifier];
+			
+			UIImageView *backgroundImage = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"grayBubble.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(15, 11, 16, 11)]];
+			[backgroundImage setTag:kPAWCellBackgroundTag];
+			[cell.contentView addSubview:backgroundImage];
+
+			UILabel *textLabel = [[UILabel alloc] init];
+			[textLabel setTag:kPAWCellTextLabelTag];
+			[cell.contentView addSubview:textLabel];
+			
+			UILabel *nameLabel = [[UILabel alloc] init];
+			[nameLabel setTag:kPAWCellNameLabelTag];
+			[cell.contentView addSubview:nameLabel];
+		}
+	}
+	
+	// Configure the cell content
+	UILabel *textLabel = (UILabel*) [cell.contentView viewWithTag:kPAWCellTextLabelTag];
+	textLabel.text = [object objectForKey:kPAWParseTextKey];
+	textLabel.lineBreakMode = UILineBreakModeWordWrap;
+	textLabel.numberOfLines = 0;
+	textLabel.font = [UIFont systemFontOfSize:kPAWWallPostTableViewFontSize];
+	textLabel.textColor = [UIColor whiteColor];
+	textLabel.backgroundColor = [UIColor clearColor];
+	
+	NSString *username = [NSString stringWithFormat:@"- %@",[[object objectForKey:kPAWParseUserKey] objectForKey:kPAWParseUsernameKey]];
+	UILabel *nameLabel = (UILabel*) [cell.contentView viewWithTag:kPAWCellNameLabelTag];
+	nameLabel.text = username;
+	nameLabel.font = [UIFont systemFontOfSize:kPAWWallPostTableViewFontSize];
+	nameLabel.backgroundColor = [UIColor clearColor];
+	if (cellIsRight) {
+		nameLabel.textColor = [UIColor colorWithRed:175.f/255.f green:172.f/255.f blue:172.f/255.f alpha:1.f];
+		nameLabel.shadowColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.35];
+		nameLabel.shadowOffset = CGSizeMake(0.0, 0.5);
+	} else {
+		nameLabel.textColor = [UIColor blackColor];
+		nameLabel.shadowColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:.35];
+		nameLabel.shadowOffset = CGSizeMake(0.0, 0.5);
+	}
+	
+	UIImageView *backgroundImage = (UIImageView*) [cell.contentView viewWithTag:kPAWCellBackgroundTag];
+	
+	// Move cell content to the right position
+	// Calculate the size of the post's text and username
+	CGSize textSize = [[object objectForKey:kPAWParseTextKey] sizeWithFont:[UIFont systemFontOfSize:kPAWWallPostTableViewFontSize] constrainedToSize:CGSizeMake(kPAWWallPostTableViewCellWidth, FLT_MAX) lineBreakMode:UILineBreakModeWordWrap];
+	CGSize nameSize = [username sizeWithFont:[UIFont systemFontOfSize:kPAWWallPostTableViewFontSize] forWidth:kPAWWallPostTableViewCellWidth lineBreakMode:UILineBreakModeTailTruncation];
+	
+	
+	CGFloat cellHeight = [self tableView:tableView heightForRowAtIndexPath:indexPath]; // Get the height of the cell
+	CGFloat textWidth = textSize.width > nameSize.width ? textSize.width : nameSize.width; // Set the width to the largest (text of username)
+	
+	// Place the content in the correct position depending on the type
+	if (cellIsRight) {
+		[nameLabel setFrame:CGRectMake(self.tableView.frame.size.width-textWidth-kPAWCellTextPaddingSides-kPAWCellPaddingSides, 
+									   kPAWCellPaddingTop+kPAWCellTextPaddingTop+textSize.height, 
+									   nameSize.width, 
+									   nameSize.height)];
+		[textLabel setFrame:CGRectMake(self.tableView.frame.size.width-textWidth-kPAWCellTextPaddingSides-kPAWCellPaddingSides, 
+									   kPAWCellPaddingTop+kPAWCellTextPaddingTop, 
+									   textSize.width, 
+									   textSize.height)];		
+		[backgroundImage setFrame:CGRectMake(self.tableView.frame.size.width-textWidth-kPAWCellTextPaddingSides*2-kPAWCellPaddingSides, 
+											 kPAWCellPaddingTop, 
+											 textWidth+kPAWCellTextPaddingSides*2, 
+											 cellHeight-kPAWCellPaddingTop-kPAWCellPaddingBottom)];
+		
+	} else {
+		[nameLabel setFrame:CGRectMake(kPAWCellTextPaddingSides-kPAWCellPaddingSides, 
+									   kPAWCellPaddingTop+kPAWCellTextPaddingTop+textSize.height, 
+									   nameSize.width, 
+									   nameSize.height)];
+		[textLabel setFrame:CGRectMake(kPAWCellPaddingSides+kPAWCellTextPaddingSides, 
+									   kPAWCellPaddingTop+kPAWCellTextPaddingTop, 
+									   textSize.width, 
+									   textSize.height)];
+		[backgroundImage setFrame:CGRectMake(kPAWCellPaddingSides, 
+											 kPAWCellPaddingTop, 
+											 textWidth+kPAWCellTextPaddingSides*2, 
+											 cellHeight-kPAWCellPaddingTop-kPAWCellPaddingBottom)];
 	}
 
-	// Configure the cell
-	cell.textLabel.lineBreakMode = UILineBreakModeWordWrap;
-	cell.textLabel.numberOfLines = 0;
-	cell.textLabel.text = [object objectForKey:kPAWParseTextKey];
-	cell.detailTextLabel.text = [[object objectForKey:kPAWParseUserKey] objectForKey:kPAWParseUsernameKey];
-	cell.textLabel.font = [cell.textLabel.font fontWithSize:kPAWWallPostTableViewFontSize];
-
+	cell.selectionStyle = UITableViewCellSelectionStyleNone;
 	return cell;
 }
 
@@ -181,22 +293,18 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 		return [tableView rowHeight];
 	}
 
-	// The default value for all rows:
-	CGFloat rowHeight = [tableView rowHeight];
-
-	// Retrieve the text for this row:
+	// Retrieve the text and username for this row:
 	PFObject *object = [self.objects objectAtIndex:indexPath.row];
 	PAWPost *postFromObject = [[PAWPost alloc] initWithPFObject:object];
 	NSString *text = postFromObject.title;
+	NSString *username = postFromObject.user.username;
+	
+	// Calculate what the frame to fit the post text and the username
+	CGSize textSize = [text sizeWithFont:[UIFont systemFontOfSize:kPAWWallPostTableViewFontSize] constrainedToSize:CGSizeMake(kPAWWallPostTableViewCellWidth, FLT_MAX) lineBreakMode:UILineBreakModeWordWrap];
+	CGSize nameSize = [username sizeWithFont:[UIFont systemFontOfSize:kPAWWallPostTableViewFontSize] forWidth:kPAWWallPostTableViewCellWidth lineBreakMode:UILineBreakModeTailTruncation];
 
-	// Calculate what the frame to fit this will be:
-	CGSize theSize = [text sizeWithFont:[UIFont systemFontOfSize:kPAWWallPostTableViewFontSize] constrainedToSize:CGSizeMake(kPAWWallPostTableViewCellWidth, FLT_MAX) lineBreakMode:UILineBreakModeWordWrap];
-
-	// And return this height plus cell padding plus the username size (or the row height
-	CGFloat textHeight = theSize.height + kPAWWallPostTableViewCellPadding + kPAWWallPostTableViewCellUsernameHeight;
-	if (textHeight > rowHeight) {
-		rowHeight = textHeight;
-	}
+	// And return this height plus cell padding and the offset of the bubble image height (without taking into account the text height twice)
+	CGFloat rowHeight = kPAWCellPaddingTop + textSize.height + nameSize.height + kPAWCellBkgdOffset;
 	return rowHeight;
 }
 
