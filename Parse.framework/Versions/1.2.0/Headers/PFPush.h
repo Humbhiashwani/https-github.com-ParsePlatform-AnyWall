@@ -3,7 +3,6 @@
 //  Parse
 //
 //  Created by Ilya Sukhar on 7/4/11.
-//  Copyright 2011 Parse, Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

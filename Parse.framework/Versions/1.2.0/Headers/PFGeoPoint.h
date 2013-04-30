@@ -3,7 +3,6 @@
 //  Parse
 //
 //  Created by Henele Adams on 12/1/11.
-//  Copyright (c) 2011 Parse, Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

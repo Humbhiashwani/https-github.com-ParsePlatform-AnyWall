@@ -3,7 +3,6 @@
 //  Posse
 //
 //  Created by James Yu on 11/20/11.
-//  Copyright (c) 2011 Parse Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

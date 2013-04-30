@@ -5,7 +5,6 @@
 //  Created by Christopher Bowns on 2/8/12.
 //  Based upon ReminderCircleView from Apple's WWDC 2010 sample code
 //  which is distributed under an attribution license which follows this notice.
-//  Copyright (c) 2012 Parse. All rights reserved.
 //
 
 /*

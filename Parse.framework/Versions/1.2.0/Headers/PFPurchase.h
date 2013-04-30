@@ -3,7 +3,6 @@
 //  Parse
 //
 //  Created by Qian Wang on 5/2/12.
-//  Copyright (c) 2012 Parse Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

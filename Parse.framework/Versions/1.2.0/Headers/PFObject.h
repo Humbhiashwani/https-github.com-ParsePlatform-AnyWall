@@ -1,5 +1,4 @@
 // PFObject.h
-// Copyright 2011 Parse, Inc. All rights reserved.
 
 #import <Foundation/Foundation.h>
 #import "PFACL.h"

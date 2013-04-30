@@ -3,7 +3,6 @@
 //  Parse
 //
 //  Created by Qian Wang on 5/15/12.
-//  Copyright (c) 2012 Parse Inc. All rights reserved.
 //
 
 #import "PFQueryTableViewController.h"

@@ -3,7 +3,6 @@
 //  Parse
 //
 //  Created by Christine Yen on 1/29/13.
-//  Copyright (c) 2013 Parse Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

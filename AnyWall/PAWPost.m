@@ -3,7 +3,6 @@
 //  Anywall
 //
 //  Created by Christopher Bowns on 2/8/12.
-//  Copyright (c) 2012 Parse. All rights reserved.
 //
 
 #import "PAWPost.h"
