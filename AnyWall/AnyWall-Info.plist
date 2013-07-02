@@ -46,14 +46,6 @@
 	<string>1.2</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>ParseDevAppID</key>
-	<string>???</string>
-	<key>ParseDevClientKey</key>
-	<string>???</string>
-	<key>ParseProdAppID</key>
-	<string>???</string>
-	<key>ParseProdClientKey</key>
-	<string>???</string>
 	<key>UIPrerenderedIcon</key>
 	<true/>
 	<key>UIRequiredDeviceCapabilities</key>
