@@ -3,6 +3,7 @@
 //  Anywall
 //
 //  Created by Christopher Bowns on 1/30/12.
+//  Copyright (c) 2013 Parse. All rights reserved.
 //
 
 #import "PAWSettingsViewController.h"
@@ -32,7 +33,13 @@ typedef enum {
 	kPAWSettingsLogoutDialogNumberOfButtons
 } kPAWSettingsLogoutDialogButtons;
 
-static uint16_t const kPAWSettingsTableViewDistanceNumberOfRows = 2;
+typedef enum {
+	kPAWSettingsTableViewDistanceSection250FeetRow = 0,
+	kPAWSettingsTableViewDistanceSection1000FeetRow,
+	kPAWSettingsTableViewDistanceSection4000FeetRow,
+	kPAWSettingsTableViewDistanceNumberOfRows
+} kPAWSettingsTableViewDistanceSectionRows;
+
 static uint16_t const kPAWSettingsTableViewLogoutNumberOfRows = 1;
 
 @implementation PAWSettingsViewController
@@ -50,12 +57,6 @@ static uint16_t const kPAWSettingsTableViewLogoutNumberOfRows = 1;
     return self;
 }
 
-- (void)didReceiveMemoryWarning {
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
-}
 
 #pragma mark - Custom setters
 
@@ -68,17 +69,6 @@ static uint16_t const kPAWSettingsTableViewLogoutNumberOfRows = 1;
 
 #pragma mark - View lifecycle
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
-}
-
-- (void)viewDidUnload {
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
-}
-
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     // Return YES for supported orientations
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
@@ -89,11 +79,14 @@ static uint16_t const kPAWSettingsTableViewLogoutNumberOfRows = 1;
 - (NSString *)distanceLabelForCell:(NSIndexPath *)indexPath {
 	NSString *cellText = nil;
 	switch (indexPath.row) {
-		case 0:
+		case kPAWSettingsTableViewDistanceSection250FeetRow:
 			cellText = @"250 feet";
 			break;
-		case 1:
+		case kPAWSettingsTableViewDistanceSection1000FeetRow:
 			cellText = @"1000 feet";
+			break;
+		case kPAWSettingsTableViewDistanceSection4000FeetRow:
+			cellText = @"4000 feet";
 			break;
 		case kPAWSettingsTableViewDistanceNumberOfRows: // never reached.
 		default:
@@ -106,11 +99,14 @@ static uint16_t const kPAWSettingsTableViewLogoutNumberOfRows = 1;
 - (PAWLocationAccuracy)distanceForCell:(NSIndexPath *)indexPath {
 	PAWLocationAccuracy distance = 0.0;
 	switch (indexPath.row) {
-		case 0:
+		case kPAWSettingsTableViewDistanceSection250FeetRow:
 			distance = 250;
 			break;
-		case 1:
+		case kPAWSettingsTableViewDistanceSection1000FeetRow:
 			distance = 1000;
+			break;
+		case kPAWSettingsTableViewDistanceSection4000FeetRow:
+			distance = 4000;
 			break;
 		case kPAWSettingsTableViewDistanceNumberOfRows: // never reached.
 		default:

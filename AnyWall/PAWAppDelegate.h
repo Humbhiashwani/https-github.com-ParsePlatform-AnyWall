@@ -3,6 +3,7 @@
 //  Anywall
 //
 //  Created by Christopher Bowns on 1/30/12.
+//  Copyright (c) 2013 Parse. All rights reserved.
 //
 
 static NSUInteger const kPAWWallPostMaximumCharacterCount = 140;

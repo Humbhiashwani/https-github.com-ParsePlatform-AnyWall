@@ -3,6 +3,7 @@
 //  Anywall
 //
 //  Created by Christopher Bowns on 1/31/12.
+//  Copyright (c) 2013 Parse. All rights reserved.
 //
 
 #import "PAWWallPostCreateViewController.h"
@@ -43,20 +44,24 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
+
+	// Do any additional setup after loading the view from its nib.
+	
+	self.characterCount = [[UILabel alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 154.0f, 21.0f)];
+	self.characterCount.backgroundColor = [UIColor clearColor];
+	self.characterCount.textColor = [UIColor whiteColor];
+	self.characterCount.shadowColor = [UIColor colorWithWhite:0.0f alpha:0.7f];
+	self.characterCount.shadowOffset = CGSizeMake(0.0f, -1.0f);
+	self.characterCount.text = @"0/140";
+
+	[self.textView setInputAccessoryView:self.characterCount];
+
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textInputChanged:) name:UITextViewTextDidChangeNotification object:textView];
 	[self updateCharacterCount:textView];
 	[self checkCharacterCount:textView];
 
 	// Show the keyboard/accept input.
 	[textView becomeFirstResponder];
-}
-
-- (void)viewDidUnload {
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextViewTextDidChangeNotification object:textView];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
@@ -138,11 +143,11 @@
 
 - (void)updateCharacterCount:(UITextView *)aTextView {
 	NSUInteger count = aTextView.text.length;
-	characterCount.text = [NSString stringWithFormat:@"%i/140", count];
+	self.characterCount.text = [NSString stringWithFormat:@"%i/140", count];
 	if (count > kPAWWallPostMaximumCharacterCount || count == 0) {
-		characterCount.font = [UIFont boldSystemFontOfSize:characterCount.font.pointSize];
+		self.characterCount.font = [UIFont boldSystemFontOfSize:self.characterCount.font.pointSize];
 	} else {
-		characterCount.font = [UIFont systemFontOfSize:characterCount.font.pointSize];
+		self.characterCount.font = [UIFont systemFontOfSize:self.characterCount.font.pointSize];
 	}
 }
 

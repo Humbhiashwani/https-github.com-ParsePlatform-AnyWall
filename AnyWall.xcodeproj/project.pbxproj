@@ -34,6 +34,7 @@
 		74D132161582A8E90065F1D2 /* just_background@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74D132001582A8E90065F1D2 /* just_background@2x.png */; };
 		74D132171582A8E90065F1D2 /* Map.png in Resources */ = {isa = PBXBuildFile; fileRef = 74D132011582A8E90065F1D2 /* Map.png */; };
 		74D132181582A8E90065F1D2 /* Map@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74D132021582A8E90065F1D2 /* Map@2x.png */; };
+		C4FD6130172751E200F61563 /* PAWWallPostsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E572726A14E0807F004A9423 /* PAWWallPostsTableViewController.m */; };
 		E5458B6614D77BEA003BE4FF /* PAWSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E5458B6414D77BEA003BE4FF /* PAWSettingsViewController.m */; };
 		E5458B6714D77BEA003BE4FF /* PAWSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E5458B6514D77BEA003BE4FF /* PAWSettingsViewController.xib */; };
 		E5458B6C14D8B2E3003BE4FF /* PAWWallPostCreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E5458B6A14D8B2E3003BE4FF /* PAWWallPostCreateViewController.m */; };
@@ -70,7 +71,7 @@
 /* Begin PBXFileReference section */
 		2F3BD81114F20F9E00BDC051 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default@2x.png"; path = "../Default@2x.png"; sourceTree = "<group>"; };
 		2F3BD81314F2117100BDC051 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Default.png; path = ../Default.png; sourceTree = "<group>"; };
-		6D97114B16F7C36600B50B57 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		6D97114B16F7C36600B50B57 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
 		6D97114D16F7C60A00B50B57 /* Parse.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Parse.framework; sourceTree = "<group>"; };
 		74D131E51582A7420065F1D2 /* Anywall-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Anywall-Info.plist"; sourceTree = "<group>"; };
 		74D131E71582A7550065F1D2 /* Anywall-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "Anywall-Prefix.pch"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -194,6 +195,7 @@
 				74D132021582A8E90065F1D2 /* Map@2x.png */,
 				2F3BD81314F2117100BDC051 /* Default.png */,
 				2F3BD81114F20F9E00BDC051 /* Default@2x.png */,
+				6D97114B16F7C36600B50B57 /* Default-568h@2x.png */,
 			);
 			name = Assets;
 			sourceTree = "<group>";
@@ -201,7 +203,6 @@
 		E56E83E714D72E1100E856AB = {
 			isa = PBXGroup;
 			children = (
-				6D97114B16F7C36600B50B57 /* Default-568h@2x.png */,
 				E56E83FC14D72E1100E856AB /* Anywall */,
 				E56E83F514D72E1100E856AB /* Frameworks */,
 				E56E83F314D72E1100E856AB /* Products */,
@@ -242,9 +243,9 @@
 			children = (
 				E56E840514D72E1100E856AB /* PAWAppDelegate.h */,
 				E56E840614D72E1100E856AB /* PAWAppDelegate.m */,
-				E5743F2A14E3024B004BBD5C /* Model Objects */,
-				E5AF78F514E0C25C005B6234 /* Custom Views */,
-				E5CAAFF614D7342200D97A18 /* View Controllers */,
+				E5743F2A14E3024B004BBD5C /* Models */,
+				E5AF78F514E0C25C005B6234 /* Views */,
+				E5CAAFF614D7342200D97A18 /* Controllers */,
 				E526A82D14F331D40074109C /* Assets */,
 				E56E83FD14D72E1100E856AB /* Supporting Files */,
 			);
@@ -255,6 +256,12 @@
 		E56E83FD14D72E1100E856AB /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				E5CAAFE914D7316F00D97A18 /* PAWWelcomeViewController.xib */,
+				E5E3D1F114DA20210074DA18 /* PAWNewUserViewController.xib */,
+				E5C3304F14DA024F00089B64 /* PAWLoginViewController.xib */,
+				E5CAAFF314D733DC00D97A18 /* PAWWallViewController.xib */,
+				E5458B6B14D8B2E3003BE4FF /* PAWWallPostCreateViewController.xib */,
+				E5458B6514D77BEA003BE4FF /* PAWSettingsViewController.xib */,
 				74D131E51582A7420065F1D2 /* Anywall-Info.plist */,
 				E56E83FF14D72E1100E856AB /* InfoPlist.strings */,
 				E56E840214D72E1100E856AB /* main.m */,
@@ -263,24 +270,7 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		E5743F2A14E3024B004BBD5C /* Model Objects */ = {
-			isa = PBXGroup;
-			children = (
-				E5743F2F14E3284F004BBD5C /* MapKit */,
-			);
-			name = "Model Objects";
-			sourceTree = "<group>";
-		};
-		E5743F2E14E30D29004BBD5C /* MapKit */ = {
-			isa = PBXGroup;
-			children = (
-				E5743F2B14E302A0004BBD5C /* PAWCircleView.h */,
-				E5743F2C14E302A0004BBD5C /* PAWCircleView.m */,
-			);
-			name = MapKit;
-			sourceTree = "<group>";
-		};
-		E5743F2F14E3284F004BBD5C /* MapKit */ = {
+		E5743F2A14E3024B004BBD5C /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				E5743F2714E30154004BBD5C /* PAWSearchRadius.h */,
@@ -288,43 +278,30 @@
 				E554D5C114E32EFB008D027A /* PAWPost.h */,
 				E554D5C214E32EFB008D027A /* PAWPost.m */,
 			);
-			name = MapKit;
+			name = Models;
 			sourceTree = "<group>";
 		};
-		E5AF78F514E0C25C005B6234 /* Custom Views */ = {
+		E5AF78F514E0C25C005B6234 /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				E5AF78F114E0B725005B6234 /* PAWActivityView.h */,
 				E5AF78F214E0B725005B6234 /* PAWActivityView.m */,
-				E5743F2E14E30D29004BBD5C /* MapKit */,
+				E5743F2B14E302A0004BBD5C /* PAWCircleView.h */,
+				E5743F2C14E302A0004BBD5C /* PAWCircleView.m */,
 			);
-			name = "Custom Views";
+			name = Views;
 			sourceTree = "<group>";
 		};
-		E5CAAFF614D7342200D97A18 /* View Controllers */ = {
+		E5CAAFF614D7342200D97A18 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				E56E840814D72E1100E856AB /* PAWWelcomeViewController.h */,
-				E56E840914D72E1100E856AB /* PAWWelcomeViewController.m */,
 				E5F7574914DB642A008CCAFE /* User Creation/Login */,
 				E5F7574B14DB643A008CCAFE /* AnyWall View and Posts */,
 				E5F7574C14DB6447008CCAFE /* Settings */,
-				E5CAAFFF14D75FC400D97A18 /* XIB Resources */,
+				E56E840814D72E1100E856AB /* PAWWelcomeViewController.h */,
+				E56E840914D72E1100E856AB /* PAWWelcomeViewController.m */,
 			);
-			name = "View Controllers";
-			sourceTree = "<group>";
-		};
-		E5CAAFFF14D75FC400D97A18 /* XIB Resources */ = {
-			isa = PBXGroup;
-			children = (
-				E5CAAFE914D7316F00D97A18 /* PAWWelcomeViewController.xib */,
-				E5E3D1F114DA20210074DA18 /* PAWNewUserViewController.xib */,
-				E5C3304F14DA024F00089B64 /* PAWLoginViewController.xib */,
-				E5CAAFF314D733DC00D97A18 /* PAWWallViewController.xib */,
-				E5458B6B14D8B2E3003BE4FF /* PAWWallPostCreateViewController.xib */,
-				E5458B6514D77BEA003BE4FF /* PAWSettingsViewController.xib */,
-			);
-			name = "XIB Resources";
+			name = Controllers;
 			sourceTree = "<group>";
 		};
 		E5F7574914DB642A008CCAFE /* User Creation/Login */ = {
@@ -466,6 +443,7 @@
 				E5743F2914E30154004BBD5C /* PAWSearchRadius.m in Sources */,
 				E5743F2D14E302A0004BBD5C /* PAWCircleView.m in Sources */,
 				E554D5C314E32EFB008D027A /* PAWPost.m in Sources */,
+				C4FD6130172751E200F61563 /* PAWWallPostsTableViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

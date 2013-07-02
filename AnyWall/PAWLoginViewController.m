@@ -3,6 +3,7 @@
 //  Anywall
 //
 //  Created by Christopher Bowns on 2/1/12.
+//  Copyright (c) 2013 Parse. All rights reserved.
 //
 
 #import "PAWLoginViewController.h"
@@ -34,12 +35,6 @@
     return self;
 }
 
-- (void)didReceiveMemoryWarning {
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-
-    // Release any cached data, images, etc that aren't in use.
-}
 
 #pragma mark - View lifecycle
 
@@ -50,15 +45,6 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textInputChanged:) name:UITextFieldTextDidChangeNotification object:passwordField];
 
 	doneButton.enabled = NO;
-}
-
-- (void)viewDidUnload {
-    [super viewDidUnload];
-
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:usernameField];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:passwordField];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {

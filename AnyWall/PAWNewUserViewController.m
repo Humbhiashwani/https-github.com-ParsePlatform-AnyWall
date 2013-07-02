@@ -3,6 +3,7 @@
 //  Anywall
 //
 //  Created by Christopher Bowns on 2/1/12.
+//  Copyright (c) 2013 Parse. All rights reserved.
 //
 
 #import "PAWNewUserViewController.h"
@@ -25,22 +26,8 @@
 @synthesize usernameField;
 @synthesize passwordField, passwordAgainField;
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
 
-- (void)didReceiveMemoryWarning {
-    // Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
-}
-
-#pragma mark - View lifecycle
+#pragma mark - UIViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -50,15 +37,6 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textInputChanged:) name:UITextFieldTextDidChangeNotification object:passwordAgainField];
 
 	doneButton.enabled = NO;
-}
-
-- (void)viewDidUnload {
-    [super viewDidUnload];
-
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:usernameField];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:passwordField];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:passwordAgainField];
-    // Release any retained subviews of the main view.
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -77,7 +55,8 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:passwordAgainField];
 }
 
-#pragma mark - UITextFieldDelegate methods
+
+#pragma mark - UITextFieldDelegate
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
 	if (textField == usernameField) {
@@ -94,7 +73,7 @@
 	return YES;
 }
 
-#pragma mark - UITextField text field change notifications and helper methods
+#pragma mark - ()
 
 - (BOOL)shouldEnableDoneButton {
 	BOOL enableDoneButton = NO;
@@ -113,8 +92,6 @@
 	doneButton.enabled = [self shouldEnableDoneButton];
 }
 
-#pragma mark - IBActions
-
 - (IBAction)cancel:(id)sender {
 	[self.presentingViewController dismissModalViewControllerAnimated:YES];
 }
@@ -125,10 +102,6 @@
 	[passwordAgainField resignFirstResponder];
 	[self processFieldEntries];
 }
-
-#pragma mark - Private methods:
-
-#pragma mark Field validation
 
 - (void)processFieldEntries {
 	// Check that we have a non-zero username and passwords.
@@ -171,19 +144,14 @@
 			}
 			errorText = [errorText stringByAppendingString:passwordBlankText];
 		}
-		goto showDialog;
-	}
-	
-	// We have non-zero strings.
-	// Check for equal password strings.
-	if ([password compare:passwordAgain] != NSOrderedSame) {
+	} else if ([password compare:passwordAgain] != NSOrderedSame) {
+		// We have non-zero strings.
+		// Check for equal password strings.
 		textError = YES;
 		errorText = [errorText stringByAppendingString:passwordMismatchText];
 		[passwordField becomeFirstResponder];
-		goto showDialog;
 	}
 
-showDialog:
 	if (textError) {
 		UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:errorText message:nil delegate:self cancelButtonTitle:nil otherButtonTitles:@"Ok", nil];
 		[alertView show];
