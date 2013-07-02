@@ -5,7 +5,7 @@
 //  Created by Christopher Bowns on 2/8/12.
 //  Based upon ReminderCircleView from Apple's WWDC 2010 sample code
 //  which is distributed under an attribution license which follows this notice.
-//  Copyright (c) 2012 Parse. All rights reserved.
+//  Copyright (c) 2013 Parse. All rights reserved.
 //
 
 /*
@@ -59,7 +59,6 @@
 
 @implementation PAWCircleView
 
-@synthesize searchRadius;
 
 - (id)initWithOverlay:(id <MKOverlay>)overlay {
 	NSAssert(0, @"-initWithSearchRadius: is the designated initializer");
@@ -89,7 +88,7 @@
 	CLLocationCoordinate2D center = self.searchRadius.coordinate;
 	CGPoint centerPoint = [self pointForMapPoint:MKMapPointForCoordinate(center)];
 	CGFloat radius = MKMapPointsPerMeterAtLatitude(center.latitude) * self.searchRadius.radius;
-	CGPathAddArc(path, NULL, centerPoint.x, centerPoint.y, radius, 2 * M_PI, 0, true);
+	CGPathAddArc(path, NULL, centerPoint.x, centerPoint.y, radius, 2.0f * M_PI, 0.0f, true);
 
 	self.path = path;
 	CGPathRelease(path);

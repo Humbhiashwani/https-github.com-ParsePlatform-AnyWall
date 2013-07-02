@@ -3,7 +3,7 @@
 //  Anywall
 //
 //  Created by Christopher Bowns on 2/8/12.
-//  Copyright (c) 2012 Parse. All rights reserved.
+//  Copyright (c) 2013 Parse. All rights reserved.
 //
 
 #import <MapKit/MapKit.h>

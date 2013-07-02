@@ -3,7 +3,7 @@
 //  Anywall
 //
 //  Created by Christopher Bowns on 2/8/12.
-//  Copyright (c) 2012 Parse. All rights reserved.
+//  Copyright (c) 2013 Parse. All rights reserved.
 //
 
 #import "PAWPost.h"
@@ -25,16 +25,6 @@
 @end
 
 @implementation PAWPost
-
-@synthesize coordinate;
-@synthesize title;
-@synthesize subtitle;
-
-@synthesize object;
-@synthesize geopoint;
-@synthesize user;
-@synthesize animatesDrop;
-@synthesize pinColor;
 
 - (id)initWithCoordinate:(CLLocationCoordinate2D)aCoordinate andTitle:(NSString *)aTitle andSubtitle:(NSString *)aSubtitle {
 	self = [super init];
@@ -73,11 +63,10 @@
 		return YES;
 	} else {
 		// Fallback code:
-		NSLog(@"%s Testing equality of PAWPosts where one or both objects lack a backing PFObject", __PRETTY_FUNCTION__);
 
-		if ([aPost.title    compare:self.title]    != NSOrderedSame ||
+		if ([aPost.title compare:self.title] != NSOrderedSame ||
 			[aPost.subtitle compare:self.subtitle] != NSOrderedSame ||
-			aPost.coordinate.latitude  != self.coordinate.latitude ||
+			aPost.coordinate.latitude != self.coordinate.latitude ||
 			aPost.coordinate.longitude != self.coordinate.longitude ) {
 			return NO;
 		}

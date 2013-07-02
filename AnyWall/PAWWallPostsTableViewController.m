@@ -3,22 +3,22 @@
 //  Anywall
 //
 //  Created by Christopher Bowns on 2/6/12.
-//  Copyright (c) 2012 Parse. All rights reserved.
+//  Copyright (c) 2013 Parse. All rights reserved.
 //
 
 static CGFloat const kPAWWallPostTableViewFontSize = 12.f;
 static CGFloat const kPAWWallPostTableViewCellWidth = 230.f; // subject to change.
 
 // Cell dimension and positioning constants
-static CGFloat const kPAWCellPaddingTop = 5.f;
-static CGFloat const kPAWCellPaddingBottom = 1.f;
-static CGFloat const kPAWCellPaddingSides = 0.f;
-static CGFloat const kPAWCellTextPaddingTop = 6.f;
-static CGFloat const kPAWCellTextPaddingBottom = 5.f;
-static CGFloat const kPAWCellTextPaddingSides = 5.f;
+static CGFloat const kPAWCellPaddingTop = 5.0f;
+static CGFloat const kPAWCellPaddingBottom = 1.0f;
+static CGFloat const kPAWCellPaddingSides = 0.0f;
+static CGFloat const kPAWCellTextPaddingTop = 6.0f;
+static CGFloat const kPAWCellTextPaddingBottom = 5.0f;
+static CGFloat const kPAWCellTextPaddingSides = 5.0f;
 
-static CGFloat const kPAWCellUsernameHeight = 15.f;
-static CGFloat const kPAWCellBkgdHeight = 32.f;
+static CGFloat const kPAWCellUsernameHeight = 15.0f;
+static CGFloat const kPAWCellBkgdHeight = 32.0f;
 static CGFloat const kPAWCellBkgdOffset = kPAWCellBkgdHeight - kPAWCellUsernameHeight;
 
 // TableViewCell ContentView tags
@@ -44,20 +44,30 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 
 @implementation PAWWallPostsTableViewController
 
+- (void)dealloc {
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWFilterDistanceChangeNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWLocationChangeNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWPostCreatedNotification object:nil];
+}
+
 - (id)initWithStyle:(UITableViewStyle)style {
 	self = [super initWithStyle:style];
 	if (self) {
 		// Customize the table:
 
 		// The className to query on
-		self.className = kPAWParsePostsClassKey;
+		self.parseClassName = kPAWParsePostsClassKey;
 
 		// The key of the PFObject to display in the label of the default cell style
 		self.textKey = kPAWParseTextKey;
 
-		// Whether the built-in pull-to-refresh is enabled
-		self.pullToRefreshEnabled = YES;
-
+        // Whether the built-in pull-to-refresh is enabled
+        if (NSClassFromString(@"UIRefreshControl")) {
+            self.pullToRefreshEnabled = NO;
+        } else {
+            self.pullToRefreshEnabled = YES;
+        }
+		
 		// Whether the built-in pagination is enabled
 		self.paginationEnabled = YES;
 
@@ -67,11 +77,21 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 	return self;
 }
 
-#pragma mark - View lifecycle
+
+#pragma mark - UIViewController
 
 - (void)viewDidLoad {
 	[super viewDidLoad];
 
+	if (NSClassFromString(@"UIRefreshControl")) {
+        // Use the new iOS 6 refresh control.
+        UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
+        self.refreshControl = refreshControl;
+        self.refreshControl.tintColor = [UIColor colorWithRed:118.0f/255.0f green:117.0f/255.0f blue:117.0f/255.0f alpha:1.0f];
+        [self.refreshControl addTarget:self action:@selector(refreshControlValueChanged:) forControlEvents:UIControlEventValueChanged];
+        self.pullToRefreshEnabled = NO;
+    }
+	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(distanceFilterDidChange:) name:kPAWFilterDistanceChangeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(locationDidChange:) name:kPAWLocationChangeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(postWasCreated:) name:kPAWPostCreatedNotification object:nil];
@@ -80,47 +100,21 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 	self.tableView.separatorColor = [UIColor clearColor];
 }
 
-- (void)viewDidUnload {
-	[super viewDidUnload];
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
-
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWFilterDistanceChangeNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWLocationChangeNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWPostCreatedNotification object:nil];
-}
-
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	// Return YES for supported orientations
 	return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
-- (void)dealloc {
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWFilterDistanceChangeNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWLocationChangeNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWPostCreatedNotification object:nil];
-}
 
-#pragma mark - NSNotification callbacks
-
-- (void)distanceFilterDidChange:(NSNotification *)note {
-	[self loadObjects];
-}
-
-- (void)locationDidChange:(NSNotification *)note {
-	[self loadObjects];
-}
-
-- (void)postWasCreated:(NSNotification *)note {
-	[self loadObjects];
-}
-
-#pragma mark - PFQueryTableViewController subclass methods
+#pragma mark - PFQueryTableViewController
 
 - (void)objectsDidLoad:(NSError *)error {
     [super objectsDidLoad:error];
     
     // This method is called every time objects are loaded from Parse via the PFQuery
+    if (NSClassFromString(@"UIRefreshControl")) {
+        [self.refreshControl endRefreshing];
+    }
 }
 
 - (void)objectsWillLoad {
@@ -132,7 +126,7 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 // Override to customize what kind of query to perform on the class. The default is to query for
 // all objects ordered by createdAt descending.
 - (PFQuery *)queryForTable {
-	PFQuery *query = [PFQuery queryWithClassName:self.className];
+	PFQuery *query = [PFQuery queryWithClassName:self.parseClassName];
 
 	// If no objects are loaded in memory, we look to the cache first to fill the table
 	// and then subsequently do a query against the network.
@@ -170,7 +164,7 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 		if (cell == nil) {
 			cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:RightCellIdentifier];
 			
-			UIImageView *backgroundImage = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"blueBubble.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(15, 11, 16, 11)]];
+			UIImageView *backgroundImage = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"blueBubble.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(15.0f, 11.0f, 16.0f, 11.0f)]];
 			[backgroundImage setTag:kPAWCellBackgroundTag];
 			[cell.contentView addSubview:backgroundImage];
 
@@ -187,7 +181,7 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 		if (cell == nil) {
 			cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:LeftCellIdentifier];
 			
-			UIImageView *backgroundImage = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"grayBubble.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(15, 11, 16, 11)]];
+			UIImageView *backgroundImage = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"grayBubble.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(15.0f, 11.0f, 16.0f, 11.0f)]];
 			[backgroundImage setTag:kPAWCellBackgroundTag];
 			[cell.contentView addSubview:backgroundImage];
 
@@ -216,13 +210,13 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 	nameLabel.font = [UIFont systemFontOfSize:kPAWWallPostTableViewFontSize];
 	nameLabel.backgroundColor = [UIColor clearColor];
 	if (cellIsRight) {
-		nameLabel.textColor = [UIColor colorWithRed:175.f/255.f green:172.f/255.f blue:172.f/255.f alpha:1.f];
-		nameLabel.shadowColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.35];
-		nameLabel.shadowOffset = CGSizeMake(0.0, 0.5);
+		nameLabel.textColor = [UIColor colorWithRed:175.0f/255.0f green:172.0f/255.0f blue:172.0f/255.0f alpha:1.0f];
+		nameLabel.shadowColor = [UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:0.35f];
+		nameLabel.shadowOffset = CGSizeMake(0.0f, 0.5f);
 	} else {
 		nameLabel.textColor = [UIColor blackColor];
-		nameLabel.shadowColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:.35];
-		nameLabel.shadowOffset = CGSizeMake(0.0, 0.5);
+		nameLabel.shadowColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:0.35f];
+		nameLabel.shadowOffset = CGSizeMake(0.0f, 0.5f);
 	}
 	
 	UIImageView *backgroundImage = (UIImageView*) [cell.contentView viewWithTag:kPAWCellBackgroundTag];
@@ -276,9 +270,8 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 	return cell;
 }
 
-#pragma mark - UITableViewDataSource protocol methods
 
-#pragma mark - UITableViewDelegate protocol methods
+#pragma mark - UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	// call super because we're a custom subclass.
@@ -308,7 +301,8 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 	return rowHeight;
 }
 
-#pragma mark - PAWWallViewControllerSelection protocol methods
+
+#pragma mark - PAWWallViewControllerSelection
 
 - (void)highlightCellForPost:(PAWPost *)post {
 	// Find the cell matching this object.
@@ -349,6 +343,25 @@ static NSUInteger const kPAWTableViewMainSection = 0;
 			return;
 		}
 	}
+}
+
+
+#pragma mark - ()
+
+- (void)distanceFilterDidChange:(NSNotification *)note {
+	[self loadObjects];
+}
+
+- (void)locationDidChange:(NSNotification *)note {
+	[self loadObjects];
+}
+
+- (void)postWasCreated:(NSNotification *)note {
+	[self loadObjects];
+}
+
+- (void)refreshControlValueChanged:(UIRefreshControl *)refreshControl {
+    [self loadObjects];
 }
 
 @end

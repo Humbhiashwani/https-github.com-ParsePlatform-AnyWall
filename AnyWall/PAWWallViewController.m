@@ -3,7 +3,7 @@
 //  Anywall
 //
 //  Created by Christopher Bowns on 1/30/12.
-//  Copyright (c) 2012 Parse. All rights reserved.
+//  Copyright (c) 2013 Parse. All rights reserved.
 //
 
 #import "PAWWallViewController.h"
@@ -94,7 +94,8 @@
 	// Add the wall posts tableview as a subview with view containment (new in iOS 5.0):
 	self.wallPostsTableViewController = [[PAWWallPostsTableViewController alloc] initWithStyle:UITableViewStylePlain];
 	[self addChildViewController:self.wallPostsTableViewController];
-	self.wallPostsTableViewController.view.frame = CGRectMake(6.f, 215.f, 308.f, 201.f);
+
+	self.wallPostsTableViewController.view.frame = CGRectMake(6.0f, 215.0f, 308.0f, self.view.bounds.size.height - 215.0f);
 	[self.view addSubview:self.wallPostsTableViewController.view];
 
 	// Set our nav bar items.
@@ -109,22 +110,9 @@
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(locationDidChange:) name:kPAWLocationChangeNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(postWasCreated:) name:kPAWPostCreatedNotification object:nil];
 
-	self.mapView.region = MKCoordinateRegionMake(CLLocationCoordinate2DMake(37.332495, -122.029095), MKCoordinateSpanMake(0.008516, 0.021801));
+	self.mapView.region = MKCoordinateRegionMake(CLLocationCoordinate2DMake(37.332495f, -122.029095f), MKCoordinateSpanMake(0.008516f, 0.021801f));
 	self.mapPannedSinceLocationUpdate = NO;
 	[self startStandardUpdates];
-}
-
-- (void)viewDidUnload {
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
-	[locationManager stopUpdatingLocation];
-
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWFilterDistanceChangeNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWLocationChangeNotification object:nil];
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:kPAWPostCreatedNotification object:nil];
-
-	self.mapPinsPlaced = NO; // reset this for the next time we show the map.
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -171,14 +159,14 @@
 	// If they panned the map since our last location update, don't recenter it.
 	if (!self.mapPannedSinceLocationUpdate) {
 		// Set the map's region centered on their location at 2x filterDistance
-		MKCoordinateRegion newRegion = MKCoordinateRegionMakeWithDistance(appDelegate.currentLocation.coordinate, appDelegate.filterDistance * 2, appDelegate.filterDistance * 2);
+		MKCoordinateRegion newRegion = MKCoordinateRegionMakeWithDistance(appDelegate.currentLocation.coordinate, appDelegate.filterDistance * 2.0f, appDelegate.filterDistance * 2.0f);
 
 		[mapView setRegion:newRegion animated:YES];
 		self.mapPannedSinceLocationUpdate = NO;
 	} else {
 		// Just zoom to the new search radius (or maybe don't even do that?)
 		MKCoordinateRegion currentRegion = mapView.region;
-		MKCoordinateRegion newRegion = MKCoordinateRegionMakeWithDistance(currentRegion.center, appDelegate.filterDistance * 2, appDelegate.filterDistance * 2);
+		MKCoordinateRegion newRegion = MKCoordinateRegionMakeWithDistance(currentRegion.center, appDelegate.filterDistance * 2.0f, appDelegate.filterDistance * 2.0f);
 
 		BOOL oldMapPannedValue = self.mapPannedSinceLocationUpdate;
 		[mapView setRegion:newRegion animated:YES];
@@ -192,7 +180,7 @@
 	// If they panned the map since our last location update, don't recenter it.
 	if (!self.mapPannedSinceLocationUpdate) {
 		// Set the map's region centered on their new location at 2x filterDistance
-		MKCoordinateRegion newRegion = MKCoordinateRegionMakeWithDistance(appDelegate.currentLocation.coordinate, appDelegate.filterDistance * 2, appDelegate.filterDistance * 2);
+		MKCoordinateRegion newRegion = MKCoordinateRegionMakeWithDistance(appDelegate.currentLocation.coordinate, appDelegate.filterDistance * 2.0f, appDelegate.filterDistance * 2.0f);
 
 		BOOL oldMapPannedValue = self.mapPannedSinceLocationUpdate;
 		[mapView setRegion:newRegion animated:YES];
@@ -318,8 +306,8 @@
 	// Only display the search radius in iOS 5.1+
 	if (version >= 5.1f && [overlay isKindOfClass:[PAWSearchRadius class]]) {
 		result = [[PAWCircleView alloc] initWithSearchRadius:(PAWSearchRadius *)overlay];
-		[(MKOverlayPathView *)result setFillColor:[[UIColor darkGrayColor] colorWithAlphaComponent:0.2]];
-		[(MKOverlayPathView *)result setStrokeColor:[[UIColor darkGrayColor] colorWithAlphaComponent:0.7]];
+		[(MKOverlayPathView *)result setFillColor:[[UIColor darkGrayColor] colorWithAlphaComponent:0.2f]];
+		[(MKOverlayPathView *)result setStrokeColor:[[UIColor darkGrayColor] colorWithAlphaComponent:0.7f]];
 		[(MKOverlayPathView *)result setLineWidth:2.0];
 	}
 	return result;
