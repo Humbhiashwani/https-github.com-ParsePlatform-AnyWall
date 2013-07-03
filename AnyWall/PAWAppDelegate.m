@@ -16,11 +16,6 @@ static NSString * const defaultsLocationKey = @"currentLocation";
 #import "PAWWelcomeViewController.h"
 #import "PAWWallViewController.h"
 
-@interface PAWAppDelegate ()
-
-
-@end
-
 @implementation PAWAppDelegate
 
 @synthesize window = _window;
@@ -38,7 +33,7 @@ static NSString * const defaultsLocationKey = @"currentLocation";
 	
 	// ****************************************************************************
 	// Fill in with your Parse credentials:
-	[Parse setApplicationId:@"uBBNZK9AO0Z4jFhIysx11P4q7mxrorBlPgI8wKhF" clientKey:@"3fcMCuNxNmK0cqbZHFtEgSIV98cwjLdDLPXGj8hp"];
+    // [Parse setApplicationId:@"APPLICATION_ID" clientKey:@"CLIENT_KEY"];
 	// ****************************************************************************
 	
 	// Grab values from NSUserDefaults:
