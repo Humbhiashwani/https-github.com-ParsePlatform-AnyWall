@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Parse. All rights reserved.
 //
 
-static CGFloat const kPAWActivityViewActivityIndicatorPadding = 10.f;
-
 #import "PAWActivityView.h"
+
+static CGFloat const kPAWActivityViewActivityIndicatorPadding = 10.f;
 
 @implementation PAWActivityView
 
@@ -18,6 +18,7 @@ static CGFloat const kPAWActivityViewActivityIndicatorPadding = 10.f;
 		self.label = [[UILabel alloc] initWithFrame:CGRectZero];
 		self.label.textColor = [UIColor whiteColor];
 		self.label.backgroundColor = [UIColor clearColor];
+		self.label.font = [UIFont boldSystemFontOfSize:20.f];
 
 		self.activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 
@@ -25,13 +26,15 @@ static CGFloat const kPAWActivityViewActivityIndicatorPadding = 10.f;
 
 		[self addSubview:self.label];
 		[self addSubview:self.activityIndicator];
+		
+		[self.activityIndicator startAnimating];
     }
     return self;
 }
 
-- (void)setLabel:(UILabel *)aLabel {
-	[_label removeFromSuperview];
-	[self addSubview:aLabel];
+- (void)setStatus:(NSString *)status {
+	_status = status;
+	self.label.text = _status;
 }
 
 - (void)layoutSubviews {

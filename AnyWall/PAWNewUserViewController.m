@@ -162,12 +162,7 @@
 	// Disable the done button for now.
 	doneButton.enabled = NO;
 	PAWActivityView *activityView = [[PAWActivityView alloc] initWithFrame:CGRectMake(0.f, 0.f, self.view.frame.size.width, self.view.frame.size.height)];
-	UILabel *label = activityView.label;
-	label.text = @"Signing You Up";
-	label.font = [UIFont boldSystemFontOfSize:20.f];
-	[activityView.activityIndicator startAnimating];
-	[activityView layoutSubviews];
-
+	activityView.status = @"Signing You Up";
 	[self.view addSubview:activityView];
 
 	// Call into an object somewhere that has code for setting up a user.

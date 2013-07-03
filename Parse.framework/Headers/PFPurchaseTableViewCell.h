@@ -3,6 +3,7 @@
 //  Parse
 //
 //  Created by Qian Wang on 5/21/12.
+//  Copyright (c) 2012 Parse Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

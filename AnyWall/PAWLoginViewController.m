@@ -159,12 +159,7 @@
 	doneButton.enabled = NO;
 
 	PAWActivityView *activityView = [[PAWActivityView alloc] initWithFrame:CGRectMake(0.f, 0.f, self.view.frame.size.width, self.view.frame.size.height)];
-	UILabel *label = activityView.label;
-	label.text = @"Logging in";
-	label.font = [UIFont boldSystemFontOfSize:20.f];
-	[activityView.activityIndicator startAnimating];
-	[activityView layoutSubviews];
-
+	activityView.status = @"Logging in";
 	[self.view addSubview:activityView];
 
 	[PFUser logInWithUsernameInBackground:username password:password block:^(PFUser *user, NSError *error) {

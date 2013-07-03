@@ -3,6 +3,7 @@
 //  Parse
 //
 //  Created by Qian Wang on 6/7/12.
+//  Copyright (c) 2012 Parse Inc. All rights reserved.
 //
 
 #import "PFObject.h"

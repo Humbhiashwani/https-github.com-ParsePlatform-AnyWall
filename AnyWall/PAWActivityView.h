@@ -12,5 +12,5 @@
 
 @property (nonatomic, strong) UILabel *label;
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
-
+@property (nonatomic, strong) NSString *status;
 @end
