@@ -6,52 +6,60 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
 import com.parse.ParseUser;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Activity that displays the settings screen.
  */
 public class SettingsActivity extends Activity {
 
-  private RadioGroup searchDistanceGroup;
+  private List<Float> availableOptions = Application.getConfigHelper().getSearchDistanceAvailableOptions();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
     setContentView(R.layout.activity_settings);
 
-    // The search distance choices
-    searchDistanceGroup = (RadioGroup) findViewById(R.id.searchDistanceGroup);
-    float searchDistance = Application.getSearchDistance();
-    if (searchDistance > 1000f) {
-      searchDistanceGroup.check(R.id.feet4000Button);
-    } else if (searchDistance > 250f) {
-      searchDistanceGroup.check(R.id.feet1000Button);
-    } else {
-      searchDistanceGroup.check(R.id.feet250Button);
+    float currentSearchDistance = Application.getSearchDistance();
+    if (!availableOptions.contains(currentSearchDistance)) {
+      availableOptions.add(currentSearchDistance);
     }
+    Collections.sort(availableOptions);
+
+    // The search distance choices
+    RadioGroup searchDistanceRadioGroup = (RadioGroup) findViewById(R.id.searchdistance_radiogroup);
+
+    for (int index = 0; index < availableOptions.size(); index++) {
+      float searchDistance = availableOptions.get(index);
+
+      RadioButton button = new RadioButton(this);
+      button.setId(index);
+      button.setText(getString(R.string.settings_distance_format, (int)searchDistance));
+      searchDistanceRadioGroup.addView(button, index);
+
+      if (currentSearchDistance == searchDistance) {
+        searchDistanceRadioGroup.check(index);
+      }
+    }
+
     // Set up the selection handler to save the selection to the application
-    searchDistanceGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+    searchDistanceRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
       public void onCheckedChanged(RadioGroup group, int checkedId) {
-        switch (checkedId) {
-        case R.id.feet4000Button:
-          Application.setSearchDistance(4000);
-          break;
-        case R.id.feet1000Button:
-          Application.setSearchDistance(1000);
-          break;
-        case R.id.feet250Button:
-          Application.setSearchDistance(250);
-          break;
-        }
+        Application.setSearchDistance(availableOptions.get(checkedId));
       }
     });
 
     // Set up the log out button click handler
-    ((Button) findViewById(R.id.logOutButton)).setOnClickListener(new OnClickListener() {
+    Button logoutButton = (Button) findViewById(R.id.logout_button);
+    logoutButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         // Call the Parse log out method
         ParseUser.logOut();

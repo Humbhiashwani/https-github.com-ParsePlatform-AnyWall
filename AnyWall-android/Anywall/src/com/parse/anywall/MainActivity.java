@@ -7,9 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
@@ -17,7 +15,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,13 +48,10 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
-import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 public class MainActivity extends FragmentActivity implements LocationListener,
     GooglePlayServicesClient.ConnectionCallbacks,
@@ -115,7 +108,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
    * Other class member variables
    */
   // Map fragment
-  private SupportMapFragment map;
+  private SupportMapFragment mapFragment;
 
   // Represents the circle around a map
   private Circle mapCircle;
@@ -126,11 +119,11 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 
   // Fields for helping process map and location changes
   private final Map<String, Marker> mapMarkers = new HashMap<String, Marker>();
-  private int mostRecentMapUpdate = 0;
-  private boolean hasSetUpInitialLocation = false;
-  private String selectedObjectId;
-  private Location lastLocation = null;
-  private Location currentLocation = null;
+  private int mostRecentMapUpdate;
+  private boolean hasSetUpInitialLocation;
+  private String selectedPostObjectId;
+  private Location lastLocation;
+  private Location currentLocation;
 
   // A request to connect to Location Services
   private LocationRequest locationRequest;
@@ -139,7 +132,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
   private LocationClient locationClient;
 
   // Adapter for the Parse query
-  private ParseQueryAdapter<AnywallPost> posts;
+  private ParseQueryAdapter<AnywallPost> postsQueryAdapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -179,14 +172,14 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         };
 
     // Set up the query adapter
-    posts = new ParseQueryAdapter<AnywallPost>(this, factory) {
+    postsQueryAdapter = new ParseQueryAdapter<AnywallPost>(this, factory) {
       @Override
       public View getItemView(AnywallPost post, View view, ViewGroup parent) {
         if (view == null) {
           view = View.inflate(getContext(), R.layout.anywall_post_item, null);
         }
-        TextView contentView = (TextView) view.findViewById(R.id.contentView);
-        TextView usernameView = (TextView) view.findViewById(R.id.usernameView);
+        TextView contentView = (TextView) view.findViewById(R.id.content_view);
+        TextView usernameView = (TextView) view.findViewById(R.id.username_view);
         contentView.setText(post.getText());
         usernameView.setText(post.getUser().getUsername());
         return view;
@@ -194,21 +187,21 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     };
 
     // Disable automatic loading when the adapter is attached to a view.
-    posts.setAutoload(false);
+    postsQueryAdapter.setAutoload(false);
 
     // Disable pagination, we'll manage the query limit ourselves
-    posts.setPaginationEnabled(false);
+    postsQueryAdapter.setPaginationEnabled(false);
 
     // Attach the query adapter to the view
-    ListView postsView = (ListView) this.findViewById(R.id.postsView);
-    postsView.setAdapter(posts);
+    ListView postsListView = (ListView) findViewById(R.id.posts_listview);
+    postsListView.setAdapter(postsQueryAdapter);
 
     // Set up the handler for an item's selection
-    postsView.setOnItemClickListener(new OnItemClickListener() {
+    postsListView.setOnItemClickListener(new OnItemClickListener() {
       public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final AnywallPost item = posts.getItem(position);
-        selectedObjectId = item.getObjectId();
-        map.getMap().animateCamera(
+        final AnywallPost item = postsQueryAdapter.getItem(position);
+        selectedPostObjectId = item.getObjectId();
+        mapFragment.getMap().animateCamera(
             CameraUpdateFactory.newLatLng(new LatLng(item.getLocation().getLatitude(), item
                 .getLocation().getLongitude())), new CancelableCallback() {
               public void onFinish() {
@@ -229,11 +222,11 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     });
 
     // Set up the map fragment
-    map = (SupportMapFragment) this.getSupportFragmentManager().findFragmentById(R.id.map);
+    mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
     // Enable the current location "blue dot"
-    map.getMap().setMyLocationEnabled(true);
+    mapFragment.getMap().setMyLocationEnabled(true);
     // Set up the camera change handler
-    map.getMap().setOnCameraChangeListener(new OnCameraChangeListener() {
+    mapFragment.getMap().setOnCameraChangeListener(new OnCameraChangeListener() {
       public void onCameraChange(CameraPosition position) {
         // When the camera changes, update the query
         doMapQuery();
@@ -241,7 +234,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     });
 
     // Set up the handler for the post button click
-    Button postButton = (Button) findViewById(R.id.postButton);
+    Button postButton = (Button) findViewById(R.id.post_button);
     postButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         // Only allow posts if we have a location
@@ -251,43 +244,10 @@ public class MainActivity extends FragmentActivity implements LocationListener,
               "Please try again after your location appears on the map.", Toast.LENGTH_LONG).show();
           return;
         }
-        final ParseGeoPoint myPoint = geoPointFromLocation(myLoc);
-        // Create the builder where the new post is entered
-        AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
-        alert.setTitle("Create a Post");
-        final EditText input = new EditText(MainActivity.this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        alert.setView(input);
-        // Handle the dialog input
-        alert.setPositiveButton("Post", new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialog, int which) {
-            // Create a post.
-            AnywallPost post = new AnywallPost();
-            // Set the location to the current user's location
-            post.setLocation(myPoint);
-            post.setText(input.getText().toString());
-            post.setUser(ParseUser.getCurrentUser());
-            ParseACL acl = new ParseACL();
-            // Give public read access
-            acl.setPublicReadAccess(true);
-            post.setACL(acl);
-            // Save the post
-            post.saveInBackground(new SaveCallback() {
-              @Override
-              public void done(ParseException e) {
-                // Update the list view and the map
-                doListQuery();
-                doMapQuery();
-              }
-            });
-          }
-        });
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialog, int which) {
-            // Do nothing.
-          }
-        });
-        alert.create().show();
+
+        Intent intent = new Intent(MainActivity.this, PostActivity.class);
+        intent.putExtra(Application.INTENT_EXTRA_LOCATION, myLoc);
+        startActivity(intent);
       }
     });
   }
@@ -326,6 +286,8 @@ public class MainActivity extends FragmentActivity implements LocationListener,
   protected void onResume() {
     super.onResume();
 
+    Application.getConfigHelper().fetchConfigIfNeeded();
+
     // Get the latest search distance preference
     radius = Application.getSearchDistance();
     // Checks the last saved location to show cached data if it's available
@@ -358,36 +320,36 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     // Choose what to do based on the request code
     switch (requestCode) {
 
-    // If the request code matches the code sent in onConnectionFailed
-    case CONNECTION_FAILURE_RESOLUTION_REQUEST:
+      // If the request code matches the code sent in onConnectionFailed
+      case CONNECTION_FAILURE_RESOLUTION_REQUEST:
 
-      switch (resultCode) {
-      // If Google Play services resolved the problem
-      case Activity.RESULT_OK:
+        switch (resultCode) {
+          // If Google Play services resolved the problem
+          case Activity.RESULT_OK:
 
-        if (Application.APPDEBUG) {
-          // Log the result
-          Log.d(Application.APPTAG, "Connected to Google Play services");
+            if (Application.APPDEBUG) {
+              // Log the result
+              Log.d(Application.APPTAG, "Connected to Google Play services");
+            }
+
+            break;
+
+          // If any other result was returned by Google Play services
+          default:
+            if (Application.APPDEBUG) {
+              // Log the result
+              Log.d(Application.APPTAG, "Could not connect to Google Play services");
+            }
+            break;
         }
 
-        break;
-
-      // If any other result was returned by Google Play services
+        // If any other request code was received
       default:
         if (Application.APPDEBUG) {
-          // Log the result
-          Log.d(Application.APPTAG, "Could not connect to Google Play services");
+          // Report that this Activity received an unknown requestCode
+          Log.d(Application.APPTAG, "Unknown request code received for the activity");
         }
         break;
-      }
-
-      // If any other request code was received
-    default:
-      if (Application.APPDEBUG) {
-        // Report that this Activity received an unknown requestCode
-        Log.d(Application.APPTAG, "Unknown request code received for the activity");
-      }
-      break;
     }
   }
 
@@ -462,7 +424,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         }
       }
     } else {
-
       // If no resolution is available, display a dialog to the user with the error.
       showErrorDialog(connectionResult.getErrorCode());
     }
@@ -475,7 +436,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     currentLocation = location;
     if (lastLocation != null
         && geoPointFromLocation(location)
-            .distanceInKilometersTo(geoPointFromLocation(lastLocation)) < 0.01) {
+        .distanceInKilometersTo(geoPointFromLocation(lastLocation)) < 0.01) {
       // If the location hasn't changed by more than 10 meters, ignore it.
       return;
     }
@@ -528,7 +489,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     if (myLoc != null) {
       // Refreshes the list view with new data based
       // usually on updated location data.
-      posts.loadObjects();
+      postsQueryAdapter.loadObjects();
     }
   }
 
@@ -615,11 +576,11 @@ public class MainActivity extends FragmentActivity implements LocationListener,
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
           }
           // Add a new marker
-          Marker marker = map.getMap().addMarker(markerOpts);
+          Marker marker = mapFragment.getMap().addMarker(markerOpts);
           mapMarkers.put(post.getObjectId(), marker);
-          if (post.getObjectId().equals(selectedObjectId)) {
+          if (post.getObjectId().equals(selectedPostObjectId)) {
             marker.showInfoWindow();
-            selectedObjectId = null;
+            selectedPostObjectId = null;
           }
         }
         // Clean up old markers.
@@ -655,7 +616,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
   private void updateCircle(LatLng myLatLng) {
     if (mapCircle == null) {
       mapCircle =
-          map.getMap().addCircle(
+          mapFragment.getMap().addCircle(
               new CircleOptions().center(myLatLng).radius(radius * METERS_PER_FEET));
       int baseColor = Color.DKGRAY;
       mapCircle.setStrokeColor(baseColor);
@@ -674,7 +635,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     // Get the bounds to zoom to
     LatLngBounds bounds = calculateBoundsWithCenter(myLatLng);
     // Zoom to the given bounds
-    map.getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 5));
+    mapFragment.getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 5));
   }
 
   /*
@@ -727,7 +688,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
   /*
    * Helper method to calculate the bounds for map zooming
    */
-  public LatLngBounds calculateBoundsWithCenter(LatLng myLatLng) {
+  LatLngBounds calculateBoundsWithCenter(LatLng myLatLng) {
     // Create a bounds
     LatLngBounds.Builder builder = LatLngBounds.builder();
 
@@ -819,5 +780,4 @@ public class MainActivity extends FragmentActivity implements LocationListener,
       return mDialog;
     }
   }
-
 }
