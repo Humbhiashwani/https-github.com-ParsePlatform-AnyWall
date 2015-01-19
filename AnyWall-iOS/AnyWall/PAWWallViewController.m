@@ -305,6 +305,7 @@ PAWWallPostCreateViewControllerDataSource>
             NSLog(@"kCLAuthorizationStatusRestricted");
         }
             break;
+		default:break;
     }
 }
 

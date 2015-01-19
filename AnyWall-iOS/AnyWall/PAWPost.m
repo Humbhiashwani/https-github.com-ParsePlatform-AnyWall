@@ -40,8 +40,6 @@
 }
 
 - (instancetype)initWithPFObject:(PFObject *)object {
-    [object fetchIfNeeded];
-
     PFGeoPoint *geoPoint = object[PAWParsePostLocationKey];
     CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(geoPoint.latitude, geoPoint.longitude);
     NSString *title = object[PAWParsePostTextKey];
