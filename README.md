@@ -8,8 +8,14 @@ See more details here: https://www.parse.com/anywall
 
 ### Xcode Project Setup
 
-1. Clone the repository and open the `Anywall.xcodeproj` project found in the `AnyWall-iOS` folder.
-2. Add your Parse application id and client key in `PAWAppDelegate.m`
+1. Clone the repository
+2. Install all project dependencies from [CocoaPods](http://cocoapods.org/#install) by running this script:
+```
+cd AnyWall-iOS
+pod install
+```
+3. Open the Xcode workspace at `AnyWall-iOS/AnyWall.xcworkspace`
+4. Add your Parse application id and client key in `PAWAppDelegate.m`
 
 ### Learn More
 

@@ -6,7 +6,9 @@
 //
 
 #import <UIKit/UIKit.h>
+
 #import <Parse/Parse.h>
+#import <ParseUI/ParseUI.h>
 
 #import "PAWWallViewController.h"
 
