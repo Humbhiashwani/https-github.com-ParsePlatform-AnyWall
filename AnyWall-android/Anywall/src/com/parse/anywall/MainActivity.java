@@ -30,9 +30,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -54,8 +54,8 @@ import com.parse.ParseQuery;
 import com.parse.ParseQueryAdapter;
 
 public class MainActivity extends FragmentActivity implements LocationListener,
-    GooglePlayServicesClient.ConnectionCallbacks,
-    GooglePlayServicesClient.OnConnectionFailedListener {
+    GoogleApiClient.ConnectionCallbacks,
+    GoogleApiClient.OnConnectionFailedListener {
 
   /*
    * Define a request code to send to Google Play services This code is returned in
@@ -129,7 +129,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
   private LocationRequest locationRequest;
 
   // Stores the current instantiation of the location client in this object
-  private LocationClient locationClient;
+  private GoogleApiClient locationClient;
 
   // Adapter for the Parse query
   private ParseQueryAdapter<AnywallPost> postsQueryAdapter;
@@ -154,7 +154,11 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     locationRequest.setFastestInterval(FAST_INTERVAL_CEILING_IN_MILLISECONDS);
 
     // Create a new location client, using the enclosing class to handle callbacks.
-    locationClient = new LocationClient(this, this, this);
+    locationClient = new GoogleApiClient.Builder(this)
+              .addApi(LocationServices.API)
+              .addConnectionCallbacks(this)
+              .addOnConnectionFailedListener(this)
+              .build();
 
     // Set up a customized query
     ParseQueryAdapter.QueryFactory<AnywallPost> factory =
@@ -404,6 +408,11 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     }
   }
 
+  @Override
+  public void onConnectionSuspended(int i) {
+       Log.i(Application.APPTAG, "GoogleApiClient connection has been suspend");
+  }
+
   /*
    * Called by Location Services if the attempt to Location Services fails.
    */
@@ -457,14 +466,15 @@ public class MainActivity extends FragmentActivity implements LocationListener,
    * In response to a request to start updates, send a request to Location Services
    */
   private void startPeriodicUpdates() {
-    locationClient.requestLocationUpdates(locationRequest, this);
+    LocationServices.FusedLocationApi.requestLocationUpdates(
+        locationClient, locationRequest, this);
   }
 
   /*
    * In response to a request to stop updates, send a request to Location Services
    */
   private void stopPeriodicUpdates() {
-    locationClient.removeLocationUpdates(this);
+    locationClient.disconnect();
   }
 
   /*
@@ -474,7 +484,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
     // If Google Play Services is available
     if (servicesConnected()) {
       // Get the current location
-      return locationClient.getLastLocation();
+      return LocationServices.FusedLocationApi.getLastLocation(locationClient);
     } else {
       return null;
     }
